@@ -1,0 +1,3 @@
+title=Company Commander
+author=Björn Guth
+orientation=landscape
