@@ -1,0 +1,21 @@
+<StartGrid>:
+	cols: 2
+	Button:
+		text: "press"
+		on_press: root.set_random_number(args)
+	Label:
+		id: label_number
+	Button:
+		text: "Select Army List"
+		on_press: root.select_army_list(args)
+
+<ArmySelectPopup>:
+	id: popup_select_army_list
+	title: "Select an Army List"
+	GridLayout:
+		cols: 1
+		Label:
+			text: "some army lists"
+		Button:
+			text: "Ok"
+			on_press: popup_select_army_list.dismiss()

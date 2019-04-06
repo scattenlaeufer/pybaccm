@@ -4,15 +4,16 @@ from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.uix.popup import Popup
 from kivy.storage.jsonstore import JsonStore
-from kivy.properties import DictProperty
+from kivy.properties import DictProperty, StringProperty
 import random
 
 
 class StartGrid(GridLayout):
 
     army_list = DictProperty()
-    army_list_name = "default"
+    army_list_name = StringProperty("default")
 
     def __init__(self, **kwargs):
         super(StartGrid, self).__init__(**kwargs)
@@ -31,21 +32,24 @@ class StartGrid(GridLayout):
 
         print(self.army_list)
 
-        self.cols = 2
-        self.button = Button(text="press")
-        self.add_widget(self.button)
-        self.label = Label(text=str(self.army_list["blubb"]))
-        self.add_widget(self.label)
-        self.button.bind(on_press=self.set_random_number)
+        self.ids['label_number'].text=str(self.army_list["blubb"])
 
     def set_random_number(self, instnace):
         a = random.randint(0, 10)
         self.army_list["blubb"] = a
-        self.label.text = str(a)
+        self.ids['label_number'].text=str(self.army_list["blubb"])
 
     def on_army_list(self, instance, army_list):
         self.army_list_data[self.army_list_name] = army_list
-        print("saved army list")
+
+    def select_army_list(self, instance):
+        ArmySelectPopup().open()
+
+
+class ArmySelectPopup(Popup):
+
+    def __init__(self, **kwargs):
+        super(ArmySelectPopup, self).__init__(**kwargs)
 
 
 class CompanyCommanderApp(App):
