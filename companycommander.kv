@@ -2,15 +2,11 @@
 	cols: 2
 	Button:
 		text: "press"
-		on_press: root.set_random_number(args)
 	Label:
-		id: label_number
+		id: label_current_list
 	Button:
 		text: "Select Army List"
 		on_press: root.select_army_list(args)
-
-<PopupButton@Button>:
-	size_hint: 1, 0.2
 
 <SelectableLabel>:
 	canvas.before:
@@ -21,7 +17,7 @@
 			size: self.size
 
 
-<ArmyListing>:
+<SelectableListing>:
 	id: army_listing
 	viewclass: "SelectableLabel"
 	SelectableRecycleBoxLayout:
@@ -33,18 +29,19 @@
 		multiselect: False
 		touch_multiselect: False
 
+<PopupButton@Button>:
+	size_hint: 1, 1
+
 <ArmySelectPopup>:
 	id: popup_select_army_list
 	title: "Select an Army List"
-	GridLayout:
-		cols: 1
-		Label:
-			id: label_army_list
-			text: "some army lists"
+	BoxLayout:
+		orientation: 'vertical'
 		BoxLayout:
 			id: army_listing_container
 		BoxLayout:
 			orientation: 'horizontal'
+			size_hint: 1, .15
 			PopupButton:
 				text: "Create new Army List"
 				on_press: root.create_new_army_list(args)
@@ -53,21 +50,48 @@
 				on_press: root.dismiss()
 			PopupButton:
 				text: "Ok"
-				on_press: root.dismiss()
+				on_press: root.ok()
 
 <NewArmyListPopup>:
 	title: 'Create new Army List'
-	GridLayout:
-		cols: 2
+	BoxLayout:
+		orientation: 'vertical'
+		BoxLayout:
+			orientation: 'horizontal'
+			size_hint: 1, .1
+			Label:
+				text: 'Name'
+			TextInput:
+				id: textinput_name
+				multiline: False
+				on_text_validate: root.ok()
+		BoxLayout:
+			orientation: 'horizontal'
+			Label:
+				text: 'Nationality'
+			BoxLayout:
+				id: layout_nation_selection
+		BoxLayout:
+			orientaiton: 'horizontal'
+			size_hint: 1, .15
+			PopupButton:
+				text: 'Cancel'
+				on_press: root.cancel()
+			PopupButton:
+				text: 'Ok'
+				on_press: root.ok()
+
+<MessagePopup>:
+	size: 300, 200
+	size_hint: None, None
+	BoxLayout:
+		orientation: 'vertical'
 		Label:
-			text: 'Name'
-		TextInput:
-			id: textinput_name
-			multiline: False
-			on_text_validate: root.ok()
-		PopupButton:
-			text: 'Cancel'
-			on_press: root.cancel()
-		PopupButton:
+			id: label_message
+			text_size: self.width-20, self.height-20
+			valign: 'middle'
+			halign: 'center'
+		Button:
 			text: 'Ok'
-			on_press: root.ok()
+			size_hint: 1, .6
+			on_press: root.dismiss()

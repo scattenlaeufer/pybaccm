@@ -15,6 +15,17 @@ from kivy.properties import DictProperty, BooleanProperty
 import random
 
 
+nationalities = [
+    "Britain",
+    "France",
+    "Germany",
+    "Italy",
+    "Japan",
+    "Soviet Union",
+    "United States",
+]
+
+
 class StartGrid(GridLayout):
 
     army_list = DictProperty()
@@ -31,28 +42,14 @@ class StartGrid(GridLayout):
                 "default": {
                     "hq": {"major": None, "captain": None, "infantry": None},
                     "platoons": [],
-                    "blubb": 0,
+                    "nationality": "Britain",
                 }
             }
             self.army_list["session_data"] = {"current_list": "default"}
-            print("created empty army list")
 
-        self.ids["label_number"].text = str(
-            self.army_list["lists"][self.army_list["session_data"]["current_list"]][
-                "blubb"
-            ]
-        )
-
-    def set_random_number(self, instnace):
-        a = random.randint(0, 10)
-        list_dict = self.army_list["lists"]
-        list_dict[self.army_list["session_data"]["current_list"]]["blubb"] = a
-        self.army_list["lists"] = list_dict
-        self.ids["label_number"].text = str(
-            self.army_list["lists"][self.army_list["session_data"]["current_list"]][
-                "blubb"
-            ]
-        )
+        self.ids["label_current_list"].text = self.army_list["session_data"][
+            "current_list"
+        ]
 
     def on_army_list(self, instance, army_list):
         self.army_list_data["lists"] = army_list["lists"]
@@ -60,18 +57,30 @@ class StartGrid(GridLayout):
             self.army_list_data["session_data"] = army_list["session_data"]
         except KeyError:
             pass
-        print("saved army list")
 
     def select_army_list(self, instance):
-        ArmySelectPopup(self.army_list).open()
+        popup = ArmySelectPopup(self.army_list)
+        popup.bind(on_dismiss=self.update_current_army_list)
+        popup.open()
+
+    def update_current_army_list(self, instance):
+        if (
+            self.army_list_data["session_data"]["current_list"]
+            != instance.selected_list
+        ):
+            self.ids["label_current_list"].text = instance.selected_list
+            session_data = self.army_list_data["lists"]
+            session_data["current_list"] = instance.selected_list
+            self.army_list_data["session_data"] = session_data
 
 
 class ArmySelectPopup(Popup):
     def __init__(self, army_list, **kwargs):
         super(ArmySelectPopup, self).__init__(**kwargs)
         self.army_list = army_list
-        self.army_listing = ArmyListing(self.army_list)
-        self.ids['army_listing_container'].add_widget(self.army_listing)
+        self.selected_list = []
+        self.army_listing = SelectableListing(self.army_list["lists"].keys())
+        self.ids["army_listing_container"].add_widget(self.army_listing)
 
     def create_new_army_list(self, instance):
         popup = NewArmyListPopup(self.army_list)
@@ -80,10 +89,13 @@ class ArmySelectPopup(Popup):
 
     def add_new_army_list(self, instance):
         if instance.ids["textinput_name"].text:
-            self.ids["label_army_list"].text = instance.ids["textinput_name"].text
-            self.army_list["session_data"]["current_list"] = instance.ids[
-                "textinput_name"
-            ].text
+            self.army_listing.add_data_item(instance.ids["textinput_name"].text)
+
+    def ok(self):
+        selected = self.army_listing.get_selection()
+        if len(selected) == 1:
+            self.selected_list = selected[0]["text"]
+            self.dismiss()
 
 
 class NewArmyListPopup(Popup):
@@ -93,6 +105,8 @@ class NewArmyListPopup(Popup):
     def __init__(self, army_list, **kwargs):
         super(NewArmyListPopup, self).__init__(**kwargs)
         self.army_list = army_list
+        self.nation_selection = SelectableListing(nationalities)
+        self.ids["layout_nation_selection"].add_widget(self.nation_selection)
 
     def cancel(self):
         self.dismiss()
@@ -100,12 +114,35 @@ class NewArmyListPopup(Popup):
     def ok(self):
         if self.ids["textinput_name"].text == "":
             self.name = None
+        elif self.ids["textinput_name"].text in self.army_list["lists"].keys():
+            MessagePopup(
+                "List already exist",
+                "There already is a army list with the name {}".format(
+                    self.ids["textinput_name"].text
+                ),
+            )
         else:
-            self.name = self.ids["textinput_name"].text
-            lists_dict = self.army_list["lists"]
-            lists_dict[self.name] = {"blubb": 0}
-            self.army_list["lists"] = lists_dict
-        self.dismiss()
+            nation = self.nation_selection.get_selection()
+            if len(nation) == 1:
+                self.name = self.ids["textinput_name"].text
+                lists_dict = self.army_list["lists"]
+                lists_dict[self.name] = {
+                    "natitonality": nation[0]["text"],
+                    "hq": {"captain": None, "major": None, "infantry": None},
+                    "platoons": [],
+                }
+                self.army_list["lists"] = lists_dict
+                self.dismiss()
+            else:
+                MessagePopup("No nation selected", "Please select a nation.")
+
+
+class MessagePopup(Popup):
+    def __init__(self, title, message, **kwargs):
+        super(MessagePopup, self).__init__(**kwargs)
+        self.title = title
+        self.ids["label_message"].text = message
+        self.open()
 
 
 class SelectableLabel(RecycleDataViewBehavior, Label):
@@ -129,9 +166,9 @@ class SelectableLabel(RecycleDataViewBehavior, Label):
         """ Respond to the selection of items in the view. """
         self.selected = is_selected
         if is_selected:
-            print("selection changed to {0}".format(rv.data[index]))
+            rv.data[index]["selected"] = True
         else:
-            print("selection removed for {0}".format(rv.data[index]))
+            rv.data[index]["selected"] = False
 
 
 class SelectableRecycleBoxLayout(
@@ -140,10 +177,22 @@ class SelectableRecycleBoxLayout(
     pass
 
 
-class ArmyListing(RecycleView):
-    def __init__(self, army_list, **kwargs):
-        super(ArmyListing, self).__init__(**kwargs)
-        self.data = [{'text': l} for l in army_list['lists'].keys()]
+class SelectableListing(RecycleView):
+    def __init__(self, data, **kwargs):
+        super(SelectableListing, self).__init__(**kwargs)
+        self.data = [{"text": l, "selected": False} for l in data]
+
+    def add_data_item(self, data_item):
+        self.data.append({"text": data_item, "selected": False})
+        self.data = sorted(self.data, key=lambda k: k["text"])
+        self.refresh_from_data()
+
+    def get_selection(self):
+        selection = []
+        for item in self.data:
+            if item["selected"]:
+                selection.append(item)
+        return selection
 
 
 class CompanyCommanderApp(App):
