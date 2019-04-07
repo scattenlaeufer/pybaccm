@@ -58,7 +58,7 @@ class StartGrid(GridLayout):
         except KeyError:
             pass
 
-    def select_army_list(self, instance):
+    def select_army_list(self):
         popup = ArmySelectPopup(self.army_list)
         popup.bind(on_dismiss=self.update_current_army_list)
         popup.open()
@@ -69,9 +69,13 @@ class StartGrid(GridLayout):
             != instance.selected_list
         ):
             self.ids["label_current_list"].text = instance.selected_list
-            session_data = self.army_list_data["lists"]
+            session_data = self.army_list_data["session_data"]
             session_data["current_list"] = instance.selected_list
             self.army_list_data["session_data"] = session_data
+
+    def delete_army_lists(self):
+        popup = ArmyListDeletePopup(self.army_list)
+        popup.open()
 
 
 class ArmySelectPopup(Popup):
@@ -137,12 +141,63 @@ class NewArmyListPopup(Popup):
                 MessagePopup("No nation selected", "Please select a nation.")
 
 
+class ArmyListDeletePopup(Popup):
+    def __init__(self, army_list, **kwargs):
+        super(ArmyListDeletePopup, self).__init__(**kwargs)
+        self.army_list = army_list
+        self.army_listing = SelectableListing(
+            self.army_list["lists"].keys(), multiselect=True
+        )
+        self.ids["army_listing_container"].add_widget(self.army_listing)
+
+    def delete(self):
+        if len(self.army_listing.get_selection()) == 0:
+            MessagePopup(
+                "No lists selected", "There are no lists seleted to be deleted."
+            ).open()
+        else:
+            confirmation_popup = ConfirmationPopup(
+                "Confirm deletion",
+                "Do you really want to delete the selected army lists?",
+            )
+            confirmation_popup.bind(on_dismiss=self.actually_delete)
+            confirmation_popup.open()
+
+    def actually_delete(self, instance):
+        if instance.confirmation:
+            if self.army_list["session_data"]["current_list"] in [
+                l["text"] for l in self.army_listing.get_selection()
+            ]:
+                MessagePopup(
+                    "No lists deleted",
+                    "Current list was selected to be deleted. No lists deleted.",
+                ).open()
+            else:
+                lists = self.army_list["lists"]
+                for l in self.army_listing.get_selection():
+                    del lists[l["text"]]
+                self.army_list["lists"] = lists
+            self.dismiss()
+
+
 class MessagePopup(Popup):
     def __init__(self, title, message, **kwargs):
         super(MessagePopup, self).__init__(**kwargs)
         self.title = title
         self.ids["label_message"].text = message
         self.open()
+
+
+class ConfirmationPopup(Popup):
+    def __init__(self, title, message, **kwargs):
+        super(ConfirmationPopup, self).__init__(**kwargs)
+        self.title = title
+        self.ids["label_message"].text = message
+        self.confirmation = False
+
+    def ok(self):
+        self.confirmation = True
+        self.dismiss()
 
 
 class SelectableLabel(RecycleDataViewBehavior, Label):
@@ -178,9 +233,11 @@ class SelectableRecycleBoxLayout(
 
 
 class SelectableListing(RecycleView):
-    def __init__(self, data, **kwargs):
+    def __init__(self, data, multiselect=False, **kwargs):
         super(SelectableListing, self).__init__(**kwargs)
         self.data = [{"text": l, "selected": False} for l in data]
+        self.children[0].multiselect = multiselect
+        self.children[0].touch_multiselect = multiselect
 
     def add_data_item(self, data_item):
         self.data.append({"text": data_item, "selected": False})

@@ -6,7 +6,10 @@
 		id: label_current_list
 	Button:
 		text: "Select Army List"
-		on_press: root.select_army_list(args)
+		on_press: root.select_army_list()
+	Button:
+		text: "Delete Army Lists"
+		on_press: root.delete_army_lists()
 
 <SelectableLabel>:
 	canvas.before:
@@ -26,8 +29,6 @@
 		size_hint_y: None
 		height: self.minimum_height
 		orientation: 'vertical'
-		multiselect: False
-		touch_multiselect: False
 
 <PopupButton@Button>:
 	size_hint: 1, 1
@@ -81,9 +82,25 @@
 				text: 'Ok'
 				on_press: root.ok()
 
+<ArmyListDeletePopup>:
+	title: "Delete army lists"
+	BoxLayout:
+		orientation: 'vertical'
+		BoxLayout:
+			id: army_listing_container
+		BoxLayout:
+			orientation: 'horizontal'
+			size_hint: 1, .15
+			Button:
+				text: 'Cancel'
+				on_press: root.dismiss()
+			Button:
+				text: 'Delete'
+				on_press: root.delete()
+
 <MessagePopup>:
-	size: 300, 200
-	size_hint: None, None
+	#size: 300, 200
+	size_hint: .5, .5
 	BoxLayout:
 		orientation: 'vertical'
 		Label:
@@ -95,3 +112,22 @@
 			text: 'Ok'
 			size_hint: 1, .6
 			on_press: root.dismiss()
+
+<ConfirmationPopup>:
+	size: 300, 200
+	size_hint: .5, .5
+	BoxLayout:
+		orientation: 'vertical'
+		Label:
+			id: label_message
+			text_size: self.width-20, self.height-20
+			valign: 'middle'
+			halign: 'center'
+		BoxLayout:
+			size_hint: 1, .6
+			Button:
+				text: 'Cancel'
+				on_press: root.dismiss()
+			Button:
+				text: 'Ok'
+				on_press: root.ok()
