@@ -13,6 +13,7 @@ from kivy.uix.behaviors import FocusBehavior
 from kivy.storage.jsonstore import JsonStore
 from kivy.properties import DictProperty, BooleanProperty
 import random
+import os
 
 
 nationalities = [
@@ -33,7 +34,7 @@ class StartGrid(GridLayout):
     def __init__(self, **kwargs):
         super(StartGrid, self).__init__(**kwargs)
 
-        self.army_list_data = JsonStore("army_list.json", indent=4, sort_keys=True)
+        self.army_list_data = JsonStore(os.path.join(App.get_running_app().user_data_dir, "army_list.json"), indent=4, sort_keys=True)
         try:
             self.army_list["lists"] = self.army_list_data["lists"]
             self.army_list["session_data"] = self.army_list_data["session_data"]
@@ -92,6 +93,7 @@ class ArmySelectPopup(Popup):
         popup.open()
 
     def add_new_army_list(self, instance):
+        # TODO: don't add list name to self.army_listing when creation canceled
         if instance.ids["textinput_name"].text:
             self.army_listing.add_data_item(instance.ids["textinput_name"].text)
 
