@@ -9,13 +9,65 @@
 		text: "Select Army List"
 		on_press: root.select_army_list(args)
 
+<PopupButton@Button>:
+	size_hint: 1, 0.2
+
+<SelectableLabel>:
+	canvas.before:
+		Color:
+			rgba: (.0, 0.9, .1, .3) if self.selected else (0, 0, 0, 1)
+		Rectangle:
+			pos: self.pos
+			size: self.size
+
+
+<ArmyListing>:
+	id: army_listing
+	viewclass: "SelectableLabel"
+	SelectableRecycleBoxLayout:
+		default_size: None, dp(56)
+		default_size_hint: 1, None
+		size_hint_y: None
+		height: self.minimum_height
+		orientation: 'vertical'
+		multiselect: False
+		touch_multiselect: False
+
 <ArmySelectPopup>:
 	id: popup_select_army_list
 	title: "Select an Army List"
 	GridLayout:
 		cols: 1
 		Label:
+			id: label_army_list
 			text: "some army lists"
-		Button:
-			text: "Ok"
-			on_press: popup_select_army_list.dismiss()
+		BoxLayout:
+			id: army_listing_container
+		BoxLayout:
+			orientation: 'horizontal'
+			PopupButton:
+				text: "Create new Army List"
+				on_press: root.create_new_army_list(args)
+			PopupButton:
+				text: 'Cancel'
+				on_press: root.dismiss()
+			PopupButton:
+				text: "Ok"
+				on_press: root.dismiss()
+
+<NewArmyListPopup>:
+	title: 'Create new Army List'
+	GridLayout:
+		cols: 2
+		Label:
+			text: 'Name'
+		TextInput:
+			id: textinput_name
+			multiline: False
+			on_text_validate: root.ok()
+		PopupButton:
+			text: 'Cancel'
+			on_press: root.cancel()
+		PopupButton:
+			text: 'Ok'
+			on_press: root.ok()
