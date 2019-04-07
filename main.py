@@ -64,7 +64,7 @@ class StartGrid(GridLayout):
         popup.open()
 
     def update_current_army_list(self, instance):
-        if (
+        if instance.selected_list and (
             self.army_list_data["session_data"]["current_list"]
             != instance.selected_list
         ):
@@ -78,7 +78,7 @@ class ArmySelectPopup(Popup):
     def __init__(self, army_list, **kwargs):
         super(ArmySelectPopup, self).__init__(**kwargs)
         self.army_list = army_list
-        self.selected_list = []
+        self.selected_list = None
         self.army_listing = SelectableListing(self.army_list["lists"].keys())
         self.ids["army_listing_container"].add_widget(self.army_listing)
 
