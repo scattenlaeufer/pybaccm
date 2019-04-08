@@ -26,6 +26,17 @@ nationalities = [
     "United States",
 ]
 
+default_list_dict = {
+    "lists": {
+        "default": {
+            "hq": {"major": None, "captain": None, "infantry": None},
+            "platoons": [],
+            "nationality": "Britain",
+        }
+    },
+    "session_data": {"current_list": "default"},
+}
+
 
 class StartGrid(GridLayout):
 
@@ -34,30 +45,25 @@ class StartGrid(GridLayout):
     def __init__(self, **kwargs):
         super(StartGrid, self).__init__(**kwargs)
 
-        self.army_list_data = JsonStore(os.path.join(App.get_running_app().user_data_dir, "army_list.json"), indent=4, sort_keys=True)
+        self.army_list_data = JsonStore(
+            os.path.join(App.get_running_app().user_data_dir, "army_list.json"),
+            indent=4,
+            sort_keys=True,
+        )
         try:
             self.army_list["lists"] = self.army_list_data["lists"]
             self.army_list["session_data"] = self.army_list_data["session_data"]
         except KeyError:
-            self.army_list["lists"] = {
-                "default": {
-                    "hq": {"major": None, "captain": None, "infantry": None},
-                    "platoons": [],
-                    "nationality": "Britain",
-                }
-            }
-            self.army_list["session_data"] = {"current_list": "default"}
+            self.army_list["lists"] = default_list_dict["lists"]
+            self.army_list["session_data"] = default_list_dict["session_data"]
 
         self.ids["label_current_list"].text = self.army_list["session_data"][
             "current_list"
         ]
 
     def on_army_list(self, instance, army_list):
-        self.army_list_data["lists"] = army_list["lists"]
-        try:
-            self.army_list_data["session_data"] = army_list["session_data"]
-        except KeyError:
-            pass
+        for key, value in army_list.items():
+            self.army_list_data[key] = value
 
     def select_army_list(self):
         popup = ArmySelectPopup(self.army_list)
@@ -132,11 +138,7 @@ class NewArmyListPopup(Popup):
             if len(nation) == 1:
                 self.name = self.ids["textinput_name"].text
                 lists_dict = self.army_list["lists"]
-                lists_dict[self.name] = {
-                    "natitonality": nation[0]["text"],
-                    "hq": {"captain": None, "major": None, "infantry": None},
-                    "platoons": [],
-                }
+                lists_dict[self.name] = default_list_dict['lists']
                 self.army_list["lists"] = lists_dict
                 self.dismiss()
             else:
