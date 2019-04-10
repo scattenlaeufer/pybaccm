@@ -1,4 +1,10 @@
-default: android
+APK=bin/baccm-0.1-debug.apk
+SOURCE=main.py
+KV=companycommander.kv
+BUILDOZER=buildozer.spec
 
-android:
+$(APK): $(SOURCE) $(KV) $(BUILDOZER)
 	buildozer android debug
+
+deploy: $(APK)
+	cp $(APK) ~/Sync
