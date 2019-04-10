@@ -1,7 +1,8 @@
 <StartGrid>:
 	cols: 2
 	Button:
-		text: "press"
+		text: "Start Game"
+		on_press: root.start_game()
 	Label:
 		id: label_current_list
 	Button:
@@ -10,6 +11,15 @@
 	Button:
 		text: "Delete Army Lists"
 		on_press: root.delete_army_lists()
+
+<GameGrid>:
+	cols: 2
+	orientation: 'horizontal'
+	Label:
+		text: 'this will become a game...'
+	Button:
+		text: 'press'
+		on_press: root.switch()
 
 <SelectableLabel>:
 	canvas.before:
@@ -33,6 +43,10 @@
 <PopupButton@Button>:
 	size_hint: 1, 1
 
+<DropDownButton>:
+	size_hint_y: None
+	height: "25pt"
+
 <ArmySelectPopup>:
 	id: popup_select_army_list
 	title: "Select an Army List"
@@ -55,11 +69,13 @@
 
 <NewArmyListPopup>:
 	title: 'Create new Army List'
+	size_hint: .5, .5
 	BoxLayout:
 		orientation: 'vertical'
 		BoxLayout:
 			orientation: 'horizontal'
-			size_hint: 1, .1
+			# size_hint_y: None
+			# height: pt(25)
 			Label:
 				text: 'Name'
 			TextInput:
@@ -70,11 +86,19 @@
 			orientation: 'horizontal'
 			Label:
 				text: 'Nationality'
-			BoxLayout:
-				id: layout_nation_selection
+			Button:
+				id: button_nation_selection
+				text: 'select'
 		BoxLayout:
 			orientaiton: 'horizontal'
-			size_hint: 1, .15
+			Label:
+				text: 'Theater Selector'
+			Button:
+				id: button_theater_selector
+				text: ''
+		BoxLayout:
+			orientaiton: 'horizontal'
+			size_hint: 1, 1
 			PopupButton:
 				text: 'Cancel'
 				on_press: root.cancel()
