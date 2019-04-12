@@ -197,7 +197,7 @@ class NewArmyListPopup(Popup):
             )
         elif self.ids["button_nation_selection"].text == "select":
             MessagePopup("No nation selected", "Please select a nation.")
-        elif self.ids["button_theater_selector"].text == "":
+        elif self.ids["button_theater_selector"].text == "select":
             MessagePopup(
                 "No theater selector selected", "Please select a theater selector"
             )
@@ -223,9 +223,9 @@ class ArmyListDeletePopup(Popup):
     def __init__(self, army_list, **kwargs):
         super(ArmyListDeletePopup, self).__init__(**kwargs)
         self.army_list = army_list
-        self.army_listing = SelectableListing(
-            self.army_list["lists"].keys(), multiselect=True
-        )
+        data_list = list(self.army_list["lists"].keys())
+        data_list.sort()
+        self.army_listing = SelectableListing(data_list, multiselect=True)
         self.ids["army_listing_container"].add_widget(self.army_listing)
 
     def delete(self):
