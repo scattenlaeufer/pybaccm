@@ -16,33 +16,7 @@ from kivy.storage.jsonstore import JsonStore
 from kivy.properties import DictProperty, BooleanProperty
 import random
 import os
-
-
-nations = [
-    "Britain",
-    "France",
-    "Germany",
-    "Italy",
-    "Japan",
-    "Soviet Union",
-    "United States",
-]
-
-theater_selector_dict = {
-    n: ["{} - {}".format(n, i) for i in range(20)] for n in nations
-}
-
-default_list_dict = {
-    "lists": {
-        "default": {
-            "hq": {"major": None, "captain": None, "infantry": None},
-            "platoons": [],
-            "nationality": "Britain",
-            "theater_selector": "1944 - Normandy",
-        }
-    },
-    "session_data": {"current_list": "default"},
-}
+from data import *
 
 
 class ManagerLayout(BoxLayout):
