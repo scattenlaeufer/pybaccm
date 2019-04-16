@@ -1,16 +1,84 @@
 <StartGrid>:
-	cols: 2
-	Button:
-		text: "Start Game"
-		on_press: root.start_game()
-	Label:
-		id: label_current_list
-	Button:
-		text: "Select Army List"
-		on_press: root.select_army_list()
-	Button:
-		text: "Delete Army Lists"
-		on_press: root.delete_army_lists()
+	onrientation: "horizontal"
+	BoxLayout:
+		orientation: "vertical"
+		BoxLayout:
+			orientation: "vertical"
+			BoxLayout:
+				orientation: 'horizontal'
+				BoxLayout:
+					orientation: "horizontal"
+					Label:
+						text: "Name:"
+					Label:
+						id: label_list_name
+						text_size: self.width, self.height
+						valign: "center"
+						halign: "center"
+				Button:
+					text: "Select Army List"
+					on_press: root.select_army_list()
+			BoxLayout:
+				orientation: "horizontal"
+				Label:
+					text: "Nationality:"
+				Label:
+					id: label_nationality
+					text_size: self.width, self.height
+					valign: "center"
+					halign: "center"
+				Label:
+					text: "Theater Selector:"
+				Label:
+					id: label_theater_selector
+					text_size: self.width, self.height
+					valign: "center"
+					halign: "center"
+			BoxLayout:
+				orientation: "horizontal"
+				Label:
+					text: "Initial Cost:"
+				Label:
+					id: label_initial_cost
+					text: "0"
+				Label:
+					text: "Current Cost:"
+				Label:
+					id: label_current_cost
+					text: "0"
+				Label:
+					text: "Current Value:"
+				Label:
+					id: label_current_value
+					text: "0"
+			BoxLayout:
+				orientation: "horizontal"
+				Label:
+					text: "Logistics Points:"
+				Label:
+					id: label_logistics_points
+					text: "0"
+				Button:
+					text: "Cange Logistics Points"
+					on_press: root.open_logistics_points_popup()
+					text_size: self.width, self.height
+					valign: "center"
+					halign: "center"
+				Button:
+					text: "Delete Army Lists"
+					on_press: root.delete_army_lists()
+					text_size: self.width, self.height
+					valign: "center"
+					halign: "center"
+		Button:
+			text: "Start Game"
+			on_press: root.start_game()
+		Label:
+			text: "Please ignore me!"
+	BoxLayout:
+		orientation: "vertical"
+		Label:
+			text: "There Might Be Dragons!"
 
 <GameGrid>:
 	cols: 2
@@ -46,6 +114,30 @@
 <DropDownButton>:
 	size_hint_y: None
 	height: "25pt"
+
+<ChangeNumberPopup>:
+	title: "Change some number"
+	size_hint: .3, .3
+	change_by: 0
+	BoxLayout:
+		orientation: "vertical"
+		BoxLayout:
+			orientation: "horizontal"
+			Label:
+				text: "Change by:"
+			TextInput:
+				text: ""
+				id: textinput_number
+				input_filter: "int"
+				multiline: False
+		BoxLayout:
+			orientation: "horizontal"
+			Button:
+				text: "Cancel"
+				on_press: root.dismiss()
+			Button:
+				text: "Change"
+				on_press: root.change()
 
 <ArmySelectPopup>:
 	id: popup_select_army_list

@@ -56,15 +56,23 @@ class ManagerLayout(BoxLayout):
         self.add_widget(game_grid)
 
 
-class StartGrid(GridLayout):
+class StartGrid(BoxLayout):
     def __init__(self, army_list, **kwargs):
         super(StartGrid, self).__init__(**kwargs)
 
         self.army_list = army_list
 
-        self.ids["label_current_list"].text = self.army_list["session_data"][
+        self.ids["label_list_name"].text = self.army_list["session_data"][
             "current_list"
         ]
+        self.ids["label_nationality"].text = self.army_list["lists"][
+            self.army_list["session_data"]["current_list"]
+        ]["nationality"]
+        self.ids["label_theater_selector"].text = self.army_list["lists"][
+            self.army_list["session_data"]["current_list"]
+        ]["theater_selector"]
+        self.ids["label_initial_cost"].text = str(self.army_list["lists"][self.army_list["session_data"]["current_list"]]["initial_cost"])
+        self.ids["label_logistics_points"].text = str(self.army_list["lists"][self.army_list["session_data"]["current_list"]]["logistics_points"])
 
     def select_army_list(self):
         popup = ArmySelectPopup(self.army_list)
@@ -75,7 +83,13 @@ class StartGrid(GridLayout):
         if instance.selected_list and (
             self.army_list["session_data"]["current_list"] != instance.selected_list
         ):
-            self.ids["label_current_list"].text = instance.selected_list
+            self.ids["label_list_name"].text = instance.selected_list
+            self.ids["label_nationality"].text = self.army_list["lists"][
+                instance.selected_list
+            ]["nationality"]
+            self.ids["label_theater_selector"].text = self.army_list["lists"][
+                instance.selected_list
+            ]["theater_selector"]
             session_data = self.army_list["session_data"]
             session_data["current_list"] = instance.selected_list
             self.army_list["session_data"] = session_data
@@ -87,6 +101,19 @@ class StartGrid(GridLayout):
     def start_game(self):
         self.parent.switch_to_game(self)
 
+    def open_logistics_points_popup(self):
+        popup = ChangeNumberPopup("Cange Logistics Points")
+        popup.bind(on_dismiss=self.change_logistics_points)
+        popup.open()
+
+    def change_logistics_points(self, instance):
+        if instance.change_by != 0:
+            lp = self.army_list["lists"][self.army_list["session_data"]["current_list"]]["logistics_points"] + instance.change_by
+            self.ids["label_logistics_points"].text = str(lp)
+            lists = self.army_list["lists"]
+            lists[self.army_list["session_data"]["current_list"]]["logistics_points"] = lp
+            self.army_list["lists"] = lists
+
 
 class GameGrid(GridLayout):
     def __init__(self, army_list, **kwargs):
@@ -95,6 +122,16 @@ class GameGrid(GridLayout):
 
     def switch(self):
         self.parent.switch_to_start(self)
+
+
+class ChangeNumberPopup(Popup):
+    def __init__(self, title, **kwargs):
+        super(ChangeNumberPopup, self).__init__(**kwargs)
+        self.title = title
+
+    def change(self):
+        self.change_by = int(self.ids["textinput_number"].text)
+        self.dismiss()
 
 
 class ArmySelectPopup(Popup):

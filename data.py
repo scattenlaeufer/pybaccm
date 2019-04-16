@@ -36,6 +36,8 @@ default_list_dict = {
             "platoons": [],
             "nationality": "Britain",
             "theater_selector": "1944 - Normandy",
+            "initial_cost": 0,
+            "logistics_points": 0,
         }
     },
     "session_data": {"current_list": "default"},
